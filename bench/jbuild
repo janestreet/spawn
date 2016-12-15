@@ -1,0 +1,3 @@
+(library
+ ((name spawn_bench)
+  (libraries (core spawn))))

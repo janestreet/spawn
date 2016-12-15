@@ -1,0 +1,7 @@
+(library
+ ((name spawn)
+  (public_name spawn)
+  (c_names (spawn_stubs))
+  ;; No deps outside of the compiler distribution!
+  (libraries (unix))
+  (preprocess no_preprocessing)))
