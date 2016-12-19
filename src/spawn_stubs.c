@@ -115,8 +115,9 @@ struct subprocess_failure {
    http://stackoverflow.com/questions/807244/c-compiler-asserts-how-to-implement */
 #define CASSERT(predicate) _impl_CASSERT_LINE(predicate,__LINE__,__FILE__)
 #define _impl_PASTE(a,b) a##b
-#define _impl_CASSERT_LINE(predicate, line, file) \
-    typedef char _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
+#define _impl_CASSERT_LINE(predicate, line, file)                       \
+  typedef char __attribute__((unused))                                  \
+  _impl_PASTE(assertion_failed_##file##_,line)[2*!!(predicate)-1];
 
 /* Fill a [subprocess_failure] structure. */
 static void set_error(struct subprocess_failure *fp,
@@ -426,25 +427,37 @@ CAMLprim value spawn_unix(value v_env,
   CAMLreturn(Val_int(ret));
 }
 
-CAMLprim value spawn_windows()
+CAMLprim value spawn_windows(value v_env,
+                             value v_cwd,
+                             value v_prog,
+                             value v_cmdline,
+                             value v_stdin,
+                             value v_stdout,
+                             value v_stderr)
 {
   unix_error(ENOSYS, "spawn_windows", Nothing);
 }
 
 #else
 
-CAMLprim value spawn_unix()
+CAMLprim value spawn_unix(value v_env,
+                          value v_cwd,
+                          value v_prog,
+                          value v_cmdline,
+                          value v_stdin,
+                          value v_stdout,
+                          value v_stderr)
 {
   unix_error(ENOSYS, "spawn_unix", Nothing);
 }
 
 CAMLprim value spawn_windows(value v_env,
-                                   value v_cwd,
-                                   value v_prog,
-                                   value v_cmdline,
-                                   value v_stdin,
-                                   value v_stdout,
-                                   value v_stderr)
+                             value v_cwd,
+                             value v_prog,
+                             value v_cmdline,
+                             value v_stdin,
+                             value v_stdout,
+                             value v_stderr)
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -486,22 +499,22 @@ CAMLprim value spawn_pipe()
 CAMLprim value spawn_unix_byte(value * argv)
 {
   return spawn_unix(argv[0],
-                          argv[1],
-                          argv[2],
-                          argv[3],
-                          argv[4],
-                          argv[5],
-                          argv[6],
-                          argv[7]);
+                    argv[1],
+                    argv[2],
+                    argv[3],
+                    argv[4],
+                    argv[5],
+                    argv[6],
+                    argv[7]);
 }
 
 CAMLprim value spawn_windows_byte(value * argv)
 {
   return spawn_windows(argv[0],
-                             argv[1],
-                             argv[2],
-                             argv[3],
-                             argv[4],
-                             argv[5],
-                             argv[6]);
+                       argv[1],
+                       argv[2],
+                       argv[3],
+                       argv[4],
+                       argv[5],
+                       argv[6]);
 }
