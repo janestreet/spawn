@@ -427,26 +427,26 @@ CAMLprim value spawn_unix(value v_env,
   CAMLreturn(Val_int(ret));
 }
 
-CAMLprim value spawn_windows(value v_env,
-                             value v_cwd,
-                             value v_prog,
-                             value v_cmdline,
-                             value v_stdin,
-                             value v_stdout,
-                             value v_stderr)
+CAMLprim value spawn_windows(value __attribute__((unused)) v_env,
+                             value __attribute__((unused)) v_cwd,
+                             value __attribute__((unused)) v_prog,
+                             value __attribute__((unused)) v_cmdline,
+                             value __attribute__((unused)) v_stdin,
+                             value __attribute__((unused)) v_stdout,
+                             value __attribute__((unused)) v_stderr)
 {
   unix_error(ENOSYS, "spawn_windows", Nothing);
 }
 
 #else
 
-CAMLprim value spawn_unix(value v_env,
-                          value v_cwd,
-                          value v_prog,
-                          value v_cmdline,
-                          value v_stdin,
-                          value v_stdout,
-                          value v_stderr)
+CAMLprim value spawn_unix(value __attribute__((unused)) v_env,
+                          value __attribute__((unused)) v_cwd,
+                          value __attribute__((unused)) v_prog,
+                          value __attribute__((unused)) v_cmdline,
+                          value __attribute__((unused)) v_stdin,
+                          value __attribute__((unused)) v_stdout,
+                          value __attribute__((unused)) v_stderr)
 {
   unix_error(ENOSYS, "spawn_unix", Nothing);
 }
