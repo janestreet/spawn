@@ -232,12 +232,8 @@ static void subprocess(int failure_fd, struct spawn_info *info)
   sigemptyset(&sigset);
   pthread_sigmask(SIG_SETMASK, &sigset, NULL);
 
-  if (info->env)
-    execve(info->prog, info->argv, info->env);
-  else
-    execv(info->prog, info->argv);
-
-  subprocess_failure(failure_fd, info->env ? "execve" : "execv", PROG);
+  execve(info->prog, info->argv, info->env);
+  subprocess_failure(failure_fd, "execve", PROG);
 }
 
 /* +-----------------------------------------------------------------+
@@ -282,6 +278,36 @@ static char **alloc_string_vect(value v)
   return result;
 }
 
+static char **copy_c_string_array(char ** strings)
+{
+  char **result;
+  size_t count, i, full_size;
+  char *ptr;
+
+  count = 0;
+  full_size = sizeof(char*);
+  while (strings[count] != 0) {
+    full_size += sizeof(char*) + strlen(strings[count]) + 1;
+    count++;
+  }
+
+  /* Allocate the array of pointers followed by the space to copy the
+     strings as one block. */
+  result = (char**)malloc(full_size);
+  if (result == NULL) caml_raise_out_of_memory();
+
+  ptr = (char*)(result + count + 1);
+  for (i = 0; i < count; i++) {
+    size_t len = strlen(strings[i]) + 1;
+    memcpy(ptr, strings[i], len);
+    result[i] = ptr;
+    ptr += len;
+  }
+  result[count] = NULL;
+
+  return result;
+}
+
 static void free_spawn_info(struct spawn_info *info)
 {
   if (info->cwd_kind == PATH) free(info->cwd.path);
@@ -289,6 +315,8 @@ static void free_spawn_info(struct spawn_info *info)
   if (info->argv)             free(info->argv);
   if (info->env)              free(info->env);
 }
+
+extern char ** environ;
 
 CAMLprim value spawn_unix(value v_env,
                                 value v_cwd,
@@ -339,7 +367,8 @@ CAMLprim value spawn_unix(value v_env,
   info.prog = strdup(String_val(v_prog));
   if (info.prog == NULL) caml_raise_out_of_memory();
   info.argv = alloc_string_vect(v_argv);
-  info.env  = Is_block(v_env) ? alloc_string_vect(Field(v_env, 0)) : NULL;
+  info.env =
+    Is_block(v_env) ? alloc_string_vect(Field(v_env, 0)) : copy_c_string_array(environ);
 
   caml_enter_blocking_section();
   enter_safe_pipe_section();

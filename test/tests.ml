@@ -8,7 +8,7 @@ let%expect_test "non-existing program" =
     Spawn.spawn () ~prog:"/doesnt-exist" ~argv:["blah"]);
   [%expect {|
     (raised (
-      exn (Unix.Unix_error "No such file or directory" execv /doesnt-exist)))
+      exn (Unix.Unix_error "No such file or directory" execve /doesnt-exist)))
   |}]
 
 let%expect_test "non-existing dir" =
