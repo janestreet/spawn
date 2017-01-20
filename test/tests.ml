@@ -7,16 +7,14 @@ let%expect_test "non-existing program" =
   show_raise (fun () ->
     Spawn.spawn () ~prog:"/doesnt-exist" ~argv:["blah"]);
   [%expect {|
-    (raised (
-      exn (Unix.Unix_error "No such file or directory" execve /doesnt-exist)))
+    (raised (Unix.Unix_error "No such file or directory" execve /doesnt-exist))
   |}]
 
 let%expect_test "non-existing dir" =
   show_raise (fun () ->
     Spawn.spawn () ~prog:"/bin/true" ~argv:["true"] ~cwd:(Path "/doesnt-exist"));
   [%expect {|
-    (raised (
-      exn (Unix.Unix_error "No such file or directory" chdir /doesnt-exist)))
+    (raised (Unix.Unix_error "No such file or directory" chdir /doesnt-exist))
   |}]
 
 let wait n =
@@ -38,5 +36,5 @@ let%expect_test "cwd:Fd (invalid)" =
   show_raise (fun () ->
     Spawn.spawn () ~prog:"/bin/pwd" ~argv:["pwd"] ~cwd:(Fd Unix.stdin));
   [%expect {|
-    (raised (exn (Unix.Unix_error "Not a directory" fchdir "")))
+    (raised (Unix.Unix_error "Not a directory" fchdir ""))
   |}]
