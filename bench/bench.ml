@@ -1,4 +1,4 @@
-open Core.Std
+open Core
 
 let%bench "exec true with Spawn.spawn" =
   Spawn.spawn () ~prog:"/bin/true" ~argv:["true"]

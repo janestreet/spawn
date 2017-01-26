@@ -1,4 +1,4 @@
-open! Core.Std
+open! Core
 open Expect_test_helpers_kernel
 
 let _ = ignore (Unix.Unix_error (ENOENT, "", ""))
