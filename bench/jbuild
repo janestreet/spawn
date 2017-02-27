@@ -1,3 +1,5 @@
 (library
  ((name spawn_bench)
   (libraries (core spawn))))
+
+(jbuild_version jane_street)
