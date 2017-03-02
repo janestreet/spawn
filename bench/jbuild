@@ -1,5 +1,6 @@
 (library
  ((name spawn_bench)
-  (libraries (core spawn))))
+  (libraries (core spawn))
+  (preprocess (pps (ppx_jane)))))
 
 (jbuild_version jane_street)
