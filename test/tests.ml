@@ -38,3 +38,9 @@ let%expect_test "cwd:Fd (invalid)" =
   [%expect {|
     (raised (Unix.Unix_error "Not a directory" fchdir ""))
   |}]
+
+let%expect_test "inheriting stdout with close-on-exec set" =
+  Unix.set_close_on_exec Unix.stdout;
+  Spawn.spawn () ~prog:"/bin/echo" ~argv:["echo"; "hello world"]
+  |> wait;
+  [%expect {| hello world |}]

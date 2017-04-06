@@ -215,19 +215,17 @@ static void subprocess(int failure_fd, struct spawn_info *info)
      when redirecting stdout to stderr for instance. */
 
   for (fd = 0; fd < 3; fd++)
-    if (info->std_fds[fd] != fd)
-      tmp_fds[fd] = safe_dup(failure_fd, info->std_fds[fd]);
+    tmp_fds[fd] = safe_dup(failure_fd, info->std_fds[fd]);
 
   for (fd = 0; fd < 3; fd++)
-    if (info->std_fds[fd] != fd)
-      close(info->std_fds[fd]);
+    close(info->std_fds[fd]);
 
-  for (fd = 0; fd < 3; fd++)
-    if (info->std_fds[fd] != fd) {
-      if (dup2(tmp_fds[fd], fd) == -1)
-        subprocess_failure(failure_fd, "dup2", NOTHING);
-      close(tmp_fds[fd]);
-    }
+  for (fd = 0; fd < 3; fd++) {
+    /* here we rely on [dup2] clearing the O_CLOEXEC flag */
+    if (dup2(tmp_fds[fd], fd) == -1)
+      subprocess_failure(failure_fd, "dup2", NOTHING);
+    close(tmp_fds[fd]);
+  }
 
   sigemptyset(&sigset);
   pthread_sigmask(SIG_SETMASK, &sigset, NULL);
