@@ -12,7 +12,10 @@ uninstall:
 
 reinstall: uninstall reinstall
 
+all-supported-ocaml-versions:
+	jbuilder build @install @runtest --workspace jbuild-workspace.dev
+
 clean:
-	rm -rf _build
+	jbuilder clean
 
 .PHONY: default install uninstall reinstall clean
