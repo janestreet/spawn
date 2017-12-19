@@ -1,3 +1,5 @@
+(jbuild_version 1)
+
 (library
  ((name spawn)
   (public_name spawn)
@@ -8,8 +10,4 @@
   ;; If that was a problem, we could add -lpthread to
   ;; c_library_flags. However, this would require testing that it is
   ;; supported.
-  (libraries (unix threads))
-  (preprocess no_preprocessing)))
-
-
-(jbuild_version 1)
+  (libraries (unix threads))))
