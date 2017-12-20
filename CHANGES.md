@@ -1,4 +1,4 @@
-# v1.0.0
+# v0.10.1
 
 - Fix linking errors due to missing `-lphtread` (#1)
 
