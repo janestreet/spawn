@@ -1,8 +1,6 @@
 open! Core
 open Expect_test_helpers_kernel
 
-(* CR-someday jdimino for jdimino: if we don't a reference to [Core.Unix], the
-   sexpifier for [Unix.Unix_error] are not registered *)
 let _ = ignore (Unix.Unix_error (ENOENT, "", ""))
 
 let%expect_test "non-existing program" =

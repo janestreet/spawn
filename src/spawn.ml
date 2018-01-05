@@ -99,7 +99,6 @@ external safe_pipe : unit -> Unix.file_descr * Unix.file_descr = "spawn_pipe"
 let safe_pipe =
   if Sys.win32 then
     fun () ->
-      (* CR-someday jdimino: fix race conditions on Windows *)
       let fdr, fdw = Unix.pipe () in
       match
         Unix.set_close_on_exec fdr;
