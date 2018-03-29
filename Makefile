@@ -18,4 +18,10 @@ all-supported-ocaml-versions:
 clean:
 	jbuilder clean
 
-.PHONY: default install uninstall reinstall clean
+test:
+	jbuilder runtest
+
+promote:
+	jbuilder promote
+
+.PHONY: default install uninstall reinstall clean test
