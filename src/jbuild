@@ -3,7 +3,6 @@
   (public_name spawn)
   (c_names (spawn_stubs))
   ;; No deps outside of the compiler distribution!
-  (flags (:standard -safe-string))
   (libraries (unix))
   (preprocess no_preprocessing)))
 
