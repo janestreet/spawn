@@ -14,7 +14,8 @@ let%expect_test "non-existing program" =
 
 let%expect_test "non-existing dir" =
   show_raise (fun () ->
-    Spawn.spawn () ~prog:"/bin/true" ~argv:["true"] ~cwd:(Path "/doesnt-exist"));
+    Spawn.spawn () ~prog:"/bin/true" ~argv:["true"]
+      ~cwd:(Path "/doesnt-exist"));
   [%expect {|
     (raised (Unix.Unix_error "No such file or directory" chdir /doesnt-exist))
   |}]
