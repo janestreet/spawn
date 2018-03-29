@@ -21,8 +21,17 @@ module Unix_backend : sig
     | Vfork
 
   (** [Fork] if the [SPAWN_USE_FORK] environment variable is set,
-     [Vfork] otherwise. *)
+      [Vfork] otherwise. *)
   val default : t
+end
+
+module Env : sig
+  (** Representation of an environment *)
+  type t
+
+  (** Create an environment from a list of strings of the form
+      ["KEY=VALUE"].  *)
+  val of_list : string list -> t
 end
 
 (** Spawn a sub-command and return its PID. This function is low-level
@@ -40,10 +49,9 @@ end
 
     {b Environment}
 
-    [env] must be a list of strings of the form ["KEY=VALUE"]. It
-    represents the environment in which the sub-process is executed. If
-    not specified, the environment from the process calling this
-    function is used.
+    [env] represents the environment in which the sub-process is
+    executed. If not specified, the environment from the process
+    calling this function is used.
 
     {b Working directory}
 
@@ -67,7 +75,7 @@ end
     [Default], [vfork] is used unless the environment variable
     [SPAWN_USE_FORK] is set. On Windows, [CreateProcess] is used.  *)
 val spawn
-  :  ?env:string list
+  :  ?env:Env.t
   -> ?cwd:Working_dir.t (** default: [Inherit] *)
   -> prog:string
   -> argv:string list
