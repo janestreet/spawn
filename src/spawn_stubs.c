@@ -112,7 +112,8 @@ struct subprocess_failure {
 
 /* Compile time asserts as described here:
 
-   http://stackoverflow.com/questions/807244/c-compiler-asserts-how-to-implement */
+   http://stackoverflow.com/questions/807244/c-compiler-asserts-how-to-implement
+*/
 #define CASSERT(predicate) _impl_CASSERT_LINE(predicate,__LINE__,__FILE__)
 #define _impl_PASTE(a,b) a##b
 #define _impl_CASSERT_LINE(predicate, line, file)                       \
@@ -135,7 +136,9 @@ static void set_error(struct subprocess_failure *fp,
 
 /* Report an error to the parent. Use the current value of [errno] as
    error number. */
-static void subprocess_failure(int failure_fd, char *function, enum error_arg error_arg)
+static void subprocess_failure(int failure_fd,
+                               char *function,
+                               enum error_arg error_arg)
 {
   struct subprocess_failure failure;
   sigset_t sigset;
@@ -366,7 +369,8 @@ CAMLprim value spawn_unix(value v_env,
   if (info.prog == NULL) caml_raise_out_of_memory();
   info.argv = alloc_string_vect(v_argv);
   info.env =
-    Is_block(v_env) ? alloc_string_vect(Field(v_env, 0)) : copy_c_string_array(environ);
+    Is_block(v_env) ?
+    alloc_string_vect(Field(v_env, 0)) : copy_c_string_array(environ);
 
   caml_enter_blocking_section();
   enter_safe_pipe_section();
