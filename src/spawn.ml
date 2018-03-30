@@ -18,8 +18,47 @@ module Unix_backend = struct
     | exception Not_found -> Vfork
 end
 
+module type Env = sig
+  type t
+  val of_list : string list -> t
+end
+
+module Env_win32 : Env = struct
+  type t = string
+
+  let of_list env =
+    let len =
+      List.fold_left env ~init:1 ~f:(fun acc s ->
+        acc + String.length s + 1)
+    in
+    let buf = Buffer.create len in
+    List.iter env ~f:(fun s ->
+      Buffer.add_string buf s;
+      Buffer.add_char buf '\000');
+    Buffer.add_char buf '\000';
+    Buffer.contents buf
+end
+
+module Env_unix : Env = struct
+  type t = string list
+
+  let no_null s =
+    if String.contains s '\000' then
+      Printf.ksprintf invalid_arg
+        "Spawn.Env.of_list: NUL bytes are not allowed in the environment \
+         but found one in %S"
+        s
+
+  let of_list l =
+    List.iter l ~f:no_null;
+    l
+end
+
+module Env : Env =
+  (val (if Sys.win32 then (module Env_win32) else (module Env_unix)) : Env)
+
 external spawn_unix
-  :  env:string list option
+  :  env:Env.t option
   -> cwd:Working_dir.t
   -> prog:string
   -> argv:string list
@@ -31,7 +70,7 @@ external spawn_unix
   = "spawn_unix_byte" "spawn_unix"
 
 external spawn_windows
-  :  env:string option
+  :  env:Env.t option
   -> cwd:string option
   -> prog:string
   -> cmdline:string
@@ -41,18 +80,6 @@ external spawn_windows
   -> int
   = "spawn_windows_byte" "spawn_windows"
 
-let windows_env env =
-  let len =
-    List.fold_left env ~init:1 ~f:(fun acc s ->
-      acc + String.length s + 1)
-  in
-  let buf = Buffer.create len in
-  List.iter env ~f:(fun s ->
-    Buffer.add_string buf s;
-    Buffer.add_char buf '\000');
-  Buffer.add_char buf '\000';
-  Buffer.contents buf
-
 let spawn_windows ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork:_ =
   let cwd =
     match (cwd : Working_dir.t) with
@@ -61,7 +88,6 @@ let spawn_windows ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork:_ =
       invalid_arg "Spawn.spawn: [cwd=Fd _] is not supported on Windows"
     | Inherit -> None
   in
-  let env = match env with None -> None | Some env -> Some (windows_env env) in
   let cmdline =
     String.concat (List.map argv ~f:Filename.quote) ~sep:" "
   in
@@ -80,7 +106,6 @@ let spawn ?env ?(cwd=Working_dir.Inherit) ~prog ~argv
   (match cwd with Path s -> no_null s | Fd _ | Inherit -> ());
   no_null prog;
   List.iter argv ~f:no_null;
-  (match env with None -> () | Some l -> List.iter l ~f:no_null);
   let backend =
     if Sys.win32 then
       spawn_windows
