@@ -1,4 +1,4 @@
-# next
+# v0.12.0
 
 - Breaking change: make environments abstract so that we can later
   optimize them without further breaking changes (#3)
