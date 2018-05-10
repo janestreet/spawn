@@ -47,6 +47,13 @@ end
     execvp function from the C library calls [/bin/sh] in this case to
     imitate the behaviors of a shell but this function doesn't.
 
+    {b Command line arguments}
+
+    [argv] is the full command line. The first element should be the program
+    name and subsequent elements the command line arguments. Note that the
+    head of [argv] doesn't necessarily have to be equal to [prog]. For
+    instance it might be [foo] while [prog] might be [/usr/bin/foo].
+
     {b Environment}
 
     [env] represents the environment in which the sub-process is
