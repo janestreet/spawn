@@ -9,7 +9,13 @@ license: "Apache-2.0"
 build: [
   ["jbuilder" "build" "-p" name "-j" jobs]
 ]
+build-test: [
+  # We don't test with OCaml < 4.04 as older versions of ppx_expect
+  # don't work with jbuilder
+  ["jbuilder" "runtest" "-p" name "-j" jobs] { ocaml-version >= "4.04" }
+]
 depends: [
   "jbuilder" {build & >= "1.0+beta18.1"}
+  "ppx_expect" {test}
 ]
 available: [ ocaml-version >= "4.02.3" ]
