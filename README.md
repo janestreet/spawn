@@ -14,3 +14,8 @@ than fork. There is a benchmark comparing `Spawn.spawn` to
 `Unix.create_process` in `spawn-lib/bench`. If you don't trust
 `vfork`, you can set the environment variable `SPAWN_USE_FORK` to make
 Spawn use `fork` instead.
+
+## Portability
+
+Spawn is expected to be fully portable. However, so far it has only
+been tested on Linux, OSX and Windows.
