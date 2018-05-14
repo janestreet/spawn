@@ -7,6 +7,8 @@
 #include <caml/signals.h>
 #include <caml/fail.h>
 
+#include <errno.h>
+
 #if !defined(_WIN32)
 
 #include <assert.h>
@@ -14,7 +16,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <pthread.h>
@@ -320,13 +321,13 @@ static void free_spawn_info(struct spawn_info *info)
 extern char ** environ;
 
 CAMLprim value spawn_unix(value v_env,
-                                value v_cwd,
-                                value v_prog,
-                                value v_argv,
-                                value v_stdin,
-                                value v_stdout,
-                                value v_stderr,
-                                value v_use_vfork)
+                          value v_cwd,
+                          value v_prog,
+                          value v_argv,
+                          value v_stdin,
+                          value v_stdout,
+                          value v_stderr,
+                          value v_use_vfork)
 {
   CAMLparam4(v_env, v_cwd, v_prog, v_argv);
   pid_t ret;
@@ -474,12 +475,29 @@ CAMLprim value spawn_windows(value __attribute__((unused)) v_env,
 CAMLprim value spawn_unix(value __attribute__((unused)) v_env,
                           value __attribute__((unused)) v_cwd,
                           value __attribute__((unused)) v_prog,
-                          value __attribute__((unused)) v_cmdline,
+                          value __attribute__((unused)) v_argv,
                           value __attribute__((unused)) v_stdin,
                           value __attribute__((unused)) v_stdout,
-                          value __attribute__((unused)) v_stderr)
+                          value __attribute__((unused)) v_stderr,
+                          value __attribute__((unused)) v_use_vfork)
 {
   unix_error(ENOSYS, "spawn_unix", Nothing);
+}
+
+static BOOL dup2_and_clear_close_on_exec(value fd, HANDLE *res)
+{
+  return DuplicateHandle(GetCurrentProcess(), Handle_val(fd),
+                         GetCurrentProcess(), res,
+                         0L,
+                         TRUE,
+                         DUPLICATE_SAME_ACCESS);
+}
+
+static void close_std_handles(STARTUPINFO *si)
+{
+  if (si->hStdInput  != NULL) CloseHandle(si->hStdInput );
+  if (si->hStdOutput != NULL) CloseHandle(si->hStdOutput);
+  if (si->hStdError  != NULL) CloseHandle(si->hStdError );
 }
 
 CAMLprim value spawn_windows(value v_env,
@@ -497,9 +515,14 @@ CAMLprim value spawn_windows(value v_env,
   ZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
   si.dwFlags    = STARTF_USESTDHANDLES;
-  si.hStdInput  = Handle_val(v_stdin);
-  si.hStdOutput = Handle_val(v_stdout);
-  si.hStdError  = Handle_val(v_stderr);
+
+  if (!dup2_and_clear_close_on_exec(v_stdin , &si.hStdInput ) ||
+      !dup2_and_clear_close_on_exec(v_stdout, &si.hStdOutput) ||
+      !dup2_and_clear_close_on_exec(v_stderr, &si.hStdError )) {
+    win32_maperr(GetLastError());
+    close_std_handles(&si);
+    uerror("DuplicateHandle", Nothing);
+  }
 
   if (!CreateProcess(String_val(v_prog),
                      String_val(v_cmdline),
@@ -512,9 +535,11 @@ CAMLprim value spawn_windows(value v_env,
                      &si,
                      &pi)) {
     win32_maperr(GetLastError());
+    close_std_handles(&si);
     uerror("CreateProcess", Nothing);
   }
 
+  close_std_handles(&si);
   CloseHandle(pi.hThread);
 
   return Val_long(pi.hProcess);
