@@ -2,7 +2,7 @@ This repository contains open source software that is developped and
 maintained by [Jane Street][js].
 
 Contributions to this project are welcome and should be submitted via
-github pull requests.
+GitHub pull requests.
 
 Signing contributions
 ---------------------
