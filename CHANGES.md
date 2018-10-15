@@ -1,3 +1,9 @@
+# next
+
+- Breaking change on Windows: to match the Unix behavior, `prog` is
+  interpreted as relative to the directory specified by the `cwd`
+  argument (#13)
+
 # v0.12.0
 
 - Breaking change: make environments abstract so that we can later

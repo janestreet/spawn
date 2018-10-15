@@ -47,6 +47,11 @@ end
     execvp function from the C library calls [/bin/sh] in this case to
     imitate the behaviors of a shell but this function doesn't.
 
+    Note that when [prog] is a relative filename, it is interpreted as
+    a path relative to the working directory specified by the [cwd]
+    argument. On Windows, this differs from what the underlying
+    [CreateProcess] function does.
+
     {b Command line arguments}
 
     [argv] is the full command line. The first element should be the program

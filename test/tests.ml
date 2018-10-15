@@ -100,3 +100,7 @@ let%expect_test "inheriting stdout with close-on-exec set" =
     wait (Spawn.spawn () ~prog ~argv:[shell; arg; {|echo "hello world"|}]);
   end;
   [%expect {| hello world |}]
+
+let%expect_test "prog relative to cwd" =
+  wait (Spawn.spawn () ~prog:"./hello.exe" ~argv:["hello"] ~cwd:(Path "exe"));
+  [%expect {| Hello, world! |}]
