@@ -1,7 +1,0 @@
-(library
- ((name spawn_test)
-  (libraries (unix spawn))
-  (inline_tests)
-  (preprocess (pps (ppx_expect)))))
-
-(jbuild_version 1)
