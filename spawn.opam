@@ -1,4 +1,4 @@
-opam-version: "1.2"
+opam-version: "2.0"
 maintainer: "opensource@janestreet.com"
 authors: ["Jane Street Group, LLC <opensource@janestreet.com>"]
 homepage: "https://github.com/janestreet/spawn"
@@ -7,15 +7,13 @@ dev-repo: "git+https://github.com/janestreet/spawn.git"
 doc: "https://janestreet.github.io/spawn/"
 license: "Apache-2.0"
 build: [
-  ["jbuilder" "build" "-p" name "-j" jobs]
-]
-build-test: [
+  ["dune" "build" "-p" name "-j" jobs]
   # We don't test with OCaml < 4.04 as older versions of ppx_expect
-  # don't work with jbuilder
-  ["jbuilder" "runtest" "-p" name "-j" jobs] { ocaml-version >= "4.04" }
+  # don't work with dune
+  ["dune" "runtest" "-p" name "-j" jobs] {with-test & ocaml >= "4.04" }
 ]
 depends: [
-  "jbuilder" {build & >= "1.0+beta18.1"}
+  "dune" {build}
   "ppx_expect" {test}
+  "ocaml" {>= "4.02.3"}
 ]
-available: [ ocaml-version >= "4.02.3" ]
