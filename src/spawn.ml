@@ -91,6 +91,11 @@ let spawn_windows ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork:_ =
   let cmdline =
     String.concat (List.map argv ~f:Filename.quote) ~sep:" "
   in
+  let prog =
+    match Filename.is_relative prog, cwd with
+    | true, Some p -> Filename.concat p prog
+    | _ -> prog
+  in
   spawn_windows ~env ~cwd ~prog ~cmdline ~stdin ~stdout ~stderr
 
 let no_null s =
