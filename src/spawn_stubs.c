@@ -143,6 +143,7 @@ static void subprocess_failure(int failure_fd,
 {
   struct subprocess_failure failure;
   sigset_t sigset;
+  size_t ignored;
 
   CASSERT(sizeof(failure) < PIPE_BUF)
 
@@ -156,7 +157,8 @@ static void subprocess_failure(int failure_fd,
 
   /* Write is atomic as buffer is smaller than PIPE_BUF
      (required by POSIX.1-2001, as claimed in [man 7 pipe]) */
-  write(failure_fd, &failure, sizeof(failure));
+  /* We bind the result to silence the unused result warning */
+  ignored = write(failure_fd, &failure, sizeof(failure));
   _exit(127);
 }
 
