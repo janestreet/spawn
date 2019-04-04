@@ -1,8 +1,12 @@
-# next
+# v0.13.0
 
 - Breaking change on Windows: to match the Unix behavior, `prog` is
   interpreted as relative to the directory specified by the `cwd`
   argument (#13)
+
+- Switch to dune (#12)
+
+- Switch to MIT+DCO (#11)
 
 # v0.12.0
 
