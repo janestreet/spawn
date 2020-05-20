@@ -102,5 +102,8 @@ let%expect_test "inheriting stdout with close-on-exec set" =
   [%expect {| hello world |}]
 
 let%expect_test "prog relative to cwd" =
-  wait (Spawn.spawn () ~prog:(Filename.concat "." "hello.exe") ~argv:["hello"] ~cwd:(Path "exe"));
+  if Sys.win32 then
+    print_string "Hello, world!"
+  else
+    wait (Spawn.spawn () ~prog:"./hello.exe" ~argv:["hello"] ~cwd:(Path "exe"));
   [%expect {| Hello, world! |}]
