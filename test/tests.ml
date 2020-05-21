@@ -1,43 +1,21 @@
-
-let () =
-  let ocaml_version = Scanf.sscanf Sys.ocaml_version "%u.%u" (fun a b -> a, b) in
-  (* The exception printer for unix errors was only added to 4.11 on Windows *)
-  if Sys.win32 && ocaml_version < (4, 11) then
-    Printexc.register_printer
-      (function
-        | Unix.Unix_error (e, s, s') ->
-          (match
-             (match e with
-              | ENOENT -> Some "ENOENT"
-              | ENOTDIR -> Some "ENOTDIR"
-              | EUNKNOWNERR x -> Some (Printf.sprintf "EUNKNOWNERR %d" x)
-              | _ -> None)
-           with
-           | None -> None
-           | Some e ->
-             Some (Printf.sprintf "Unix.Unix_error(Unix.%s, %S, %S)" e s s'))
-        | _ -> None)
-
 let show_raise f =
   try
     ignore (f () : int)
   with exn ->
-    let exn =
+    let s =
       match exn with
-      | Unix.Unix_error (err, _func_name, arg) ->
-        (* Hide the function name to make the test more portable. On
-           Windows, the function is always "CreateProcess" but on Unix
-           it might be "execve", "chdir", ... *)
-        Unix.Unix_error (err, "<hidden-function-name>", arg)
-      | exn -> exn
+      | Unix.Unix_error _ ->
+        (* For compat with Windows *)
+        "Unix_error _"
+      | exn -> Printexc.to_string exn
     in
-    Printf.printf "raised %s" (Printexc.to_string exn)
+    Printf.printf "raised %s" s
 
 let%expect_test "non-existing program" =
   show_raise (fun () ->
     Spawn.spawn () ~prog:"/doesnt-exist" ~argv:["blah"]);
   [%expect {|
-    raised Unix.Unix_error(Unix.ENOENT, "<hidden-function-name>", "/doesnt-exist")
+    raised Unix_error _
   |}]
 
 let%expect_test "non-existing dir" =
@@ -45,7 +23,7 @@ let%expect_test "non-existing dir" =
     Spawn.spawn () ~prog:"/bin/true" ~argv:["true"]
       ~cwd:(Path "/doesnt-exist"));
   [%expect {|
-    raised Unix.Unix_error(Unix.ENOENT, "<hidden-function-name>", "/doesnt-exist")
+    raised Unix_error _
   |}]
 
 let wait pid =
@@ -74,7 +52,7 @@ let%expect_test "cwd:Fd (invalid)" =
     else
       Spawn.spawn () ~prog:"/bin/pwd" ~argv:["pwd"] ~cwd:(Fd Unix.stdin));
   [%expect {|
-    raised Unix.Unix_error(Unix.ENOTDIR, "<hidden-function-name>", "")
+    raised Unix_error _
   |}]
 
 
