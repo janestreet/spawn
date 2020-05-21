@@ -1,3 +1,23 @@
+
+let () =
+  let ocaml_version = Scanf.sscanf Sys.ocaml_version "%u.%u" (fun a b -> a, b) in
+  (* The exception printer for unix errors was only added to 4.11 on Windows *)
+  if Sys.win32 && ocaml_version < (4, 11) then
+    Printexc.register_printer
+      (function
+        | Unix.Unix_error (e, s, s') ->
+          (match
+             (match e with
+              | ENOENT -> Some "ENOENT"
+              | ENOTDIR -> Some "ENOTDIR"
+              | EUNKNOWNERR x -> Some (Printf.sprintf "EUNKNOWNERR %d" x)
+              | _ -> None)
+           with
+           | None -> None
+           | Some e ->
+             Some (Printf.sprintf "Unix.Unix_error(Unix.%s, %S, %S)" e s s'))
+        | _ -> None)
+
 let show_raise f =
   try
     ignore (f () : int)
