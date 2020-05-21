@@ -2,13 +2,22 @@ let show_raise f =
   try
     ignore (f () : int)
   with exn ->
+    let exn =
+      match exn with
+      | Unix.Unix_error (err, _func_name, arg) ->
+        (* Hide the function name to make the test more portable. On
+           Windows, the function is always "CreateProcess" but on Unix
+           it might be "execve", "chdir", ... *)
+        Unix.Unix_error (err, "<hidden-function-name>", arg)
+      | exn -> exn
+    in
     Printf.printf "raised %s" (Printexc.to_string exn)
 
 let%expect_test "non-existing program" =
   show_raise (fun () ->
     Spawn.spawn () ~prog:"/doesnt-exist" ~argv:["blah"]);
   [%expect {|
-    raised Unix.Unix_error(Unix.ENOENT, "execve", "/doesnt-exist")
+    raised Unix.Unix_error(Unix.ENOENT, "<hidden-function-name>", "/doesnt-exist")
   |}]
 
 let%expect_test "non-existing dir" =
@@ -16,7 +25,7 @@ let%expect_test "non-existing dir" =
     Spawn.spawn () ~prog:"/bin/true" ~argv:["true"]
       ~cwd:(Path "/doesnt-exist"));
   [%expect {|
-    raised Unix.Unix_error(Unix.ENOENT, "chdir", "/doesnt-exist")
+    raised Unix.Unix_error(Unix.ENOENT, "<hidden-function-name>", "/doesnt-exist")
   |}]
 
 let wait pid =
@@ -45,7 +54,7 @@ let%expect_test "cwd:Fd (invalid)" =
     else
       Spawn.spawn () ~prog:"/bin/pwd" ~argv:["pwd"] ~cwd:(Fd Unix.stdin));
   [%expect {|
-    raised Unix.Unix_error(Unix.ENOTDIR, "fchdir", "")
+    raised Unix.Unix_error(Unix.ENOTDIR, "<hidden-function-name>", "")
   |}]
 
 
