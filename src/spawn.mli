@@ -88,13 +88,13 @@ end
     [SPAWN_USE_FORK] is set. On Windows, [CreateProcess] is used.  *)
 val spawn
   :  ?env:Env.t
-  -> ?cwd:Working_dir.t (** default: [Inherit] *)
+  -> ?cwd:Working_dir.t (* default: [Inherit] *)
   -> prog:string
   -> argv:string list
   -> ?stdin:Unix.file_descr
   -> ?stdout:Unix.file_descr
   -> ?stderr:Unix.file_descr
-  -> ?unix_backend:Unix_backend.t (** default: [Unix_backend.default] *)
+  -> ?unix_backend:Unix_backend.t (* default: [Unix_backend.default] *)
   -> unit
   -> int
 
