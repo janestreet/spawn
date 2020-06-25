@@ -6,7 +6,9 @@ let show_raise f =
       match exn with
       | Unix.Unix_error _ ->
         (* For compat with Windows *)
-        "Unix_error _"
+        let s = Printexc.to_string exn in
+        Scanf.sscanf s "Unix.Unix_error(%[^,], %_S, %_S)"
+          (Printf.sprintf "Unix.Unix_error(%s, _, _)")
       | exn -> Printexc.to_string exn
     in
     Printf.printf "raised %s" s
@@ -15,7 +17,7 @@ let%expect_test "non-existing program" =
   show_raise (fun () ->
     Spawn.spawn () ~prog:"/doesnt-exist" ~argv:["blah"]);
   [%expect {|
-    raised Unix_error _
+    raised Unix.Unix_error(Unix.ENOENT, _, _)
   |}]
 
 let%expect_test "non-existing dir" =
@@ -23,7 +25,7 @@ let%expect_test "non-existing dir" =
     Spawn.spawn () ~prog:"/bin/true" ~argv:["true"]
       ~cwd:(Path "/doesnt-exist"));
   [%expect {|
-    raised Unix_error _
+    raised Unix.Unix_error(Unix.ENOENT, _, _)
   |}]
 
 let wait pid =
@@ -52,7 +54,7 @@ let%expect_test "cwd:Fd (invalid)" =
     else
       Spawn.spawn () ~prog:"/bin/pwd" ~argv:["pwd"] ~cwd:(Fd Unix.stdin));
   [%expect {|
-    raised Unix_error _
+    raised Unix.Unix_error(Unix.ENOTDIR, _, _)
   |}]
 
 
