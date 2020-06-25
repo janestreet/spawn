@@ -30,6 +30,9 @@ depends: [
   "ppx_expect" {with-test}
   "ocaml" {>= "4.02.3"}
 ]
+conflicts: [
+  "time_now" {>= "v0.14" & os-family = "windows"}
+]
 build: [
   ["dune" "subst"] {pinned}
   [
