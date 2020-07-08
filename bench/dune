@@ -1,4 +1,5 @@
 (library
  (name spawn_bench)
  (libraries spawn)
- (preprocess (pps ppx_bench)))
+ (preprocess
+  (pps ppx_bench)))

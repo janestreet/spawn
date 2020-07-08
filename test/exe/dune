@@ -1,1 +1,2 @@
-(executable (name hello))
+(executable
+ (name hello))
