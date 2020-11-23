@@ -146,12 +146,12 @@ let%expect_test "env" =
     in
     wait (Spawn.spawn () ~env ~prog:"./print_env.exe" ~argv:["print_env"] ~cwd:(Path "exe"))
   in
+  tst (Some "foo");
+  [%expect {| Some "foo" |}];
   tst None;
   [%expect {| None |}];
   tst (Some "");
-  [%expect {| Some "" |}];
-  tst (Some "foo");
-  [%expect {| Some "foo" |}]
+  [%expect {| Some "" |}]
 
 let%expect_test "pgid tests" =
   wait
