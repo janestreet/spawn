@@ -138,6 +138,21 @@ let%expect_test "prog relative to cwd" =
       (Spawn.spawn () ~prog:"./hello.exe" ~argv:[ "hello" ] ~cwd:(Path "exe"));
   [%expect {| Hello, world! |}]
 
+let%expect_test "env" =
+  let tst v =
+    let env = match v with
+      | None -> Spawn.Env.of_list []
+      | Some v -> Spawn.Env.of_list ["FOO=" ^ v]
+    in
+    wait (Spawn.spawn () ~env ~prog:"./print_env.exe" ~argv:["print_env"] ~cwd:(Path "exe"))
+  in
+  tst None;
+  [%expect {| None |}];
+  tst (Some "");
+  [%expect {| Some "" |}];
+  tst (Some "foo");
+  [%expect {| Some "foo" |}]
+
 let%expect_test "pgid tests" =
   wait
     (Spawn.spawn ~setpgid:Spawn.Pgid.new_process_group ()
