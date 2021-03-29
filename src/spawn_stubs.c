@@ -9,10 +9,27 @@
 
 #include <errno.h>
 
+#if defined(__APPLE__)
+
+CAMLprim value spawn_is_osx()
+{
+  return Val_true;
+}
+
+#else
+
+CAMLprim value spawn_is_osx()
+{
+  return Val_false;
+}
+
+#endif
+
 #if !defined(_WIN32)
 
 #include <assert.h>
 #include <string.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
