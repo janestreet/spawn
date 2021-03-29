@@ -24,4 +24,7 @@ test:
 promote:
 	dune promote
 
+fmt:
+	dune build @fmt --auto-promote
+
 .PHONY: default install uninstall reinstall clean test
