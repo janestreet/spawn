@@ -31,15 +31,33 @@ let wait pid =
   | WSIGNALED n -> Printf.ksprintf failwith "got signal %d" n
   | WSTOPPED _ -> assert false
 
+let list_files = Filename.concat (Sys.getcwd ()) "exe/list_files.exe"
+
+let () =
+  Unix.mkdir "sub" 0o777;
+  close_out (open_out "sub/foo");
+  close_out (open_out "sub/bar")
+
+let%expect_test "cwd:Path" =
+  wait
+    (Spawn.spawn () ~prog:list_files ~argv:[ "list_files.exe" ]
+       ~cwd:(Path "sub"));
+  [%expect {|
+    bar
+    foo
+  |}]
+
 let%expect_test "cwd:Fd" =
   (if Sys.win32 then
-    print_string "/tmp"
+    print_endline "bar\nfoo"
   else
-    let fd = Unix.openfile "/tmp" [ O_RDONLY ] 0 in
-    wait (Spawn.spawn () ~prog:"/bin/pwd" ~argv:[ "pwd" ] ~cwd:(Fd fd));
+    let fd = Unix.openfile "sub" [ O_RDONLY ] 0 in
+    wait
+      (Spawn.spawn () ~prog:list_files ~argv:[ "list_files.exe" ] ~cwd:(Fd fd));
     Unix.close fd);
   [%expect {|
-    /tmp
+    bar
+    foo
   |}]
 
 let%expect_test "cwd:Fd (invalid)" =
