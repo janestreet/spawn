@@ -34,7 +34,7 @@ let fmt () =
     close_in ic;
     v
   in
-  opam [ "install"; "ocamlformat"; version_of_ocamlformat ];
+  opam [ "install"; "ocamlformat." ^ version_of_ocamlformat ];
   run "dune" [ "build"; "@fmt" ]
 
 let () =
