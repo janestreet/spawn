@@ -119,3 +119,18 @@ let%expect_test "prog relative to cwd" =
     wait
       (Spawn.spawn () ~prog:"./hello.exe" ~argv:[ "hello" ] ~cwd:(Path "exe"));
   [%expect {| Hello, world! |}]
+
+let%expect_test "env" =
+  let tst v =
+    let env = match v with
+      | None -> Spawn.Env.of_list []
+      | Some v -> Spawn.Env.of_list ["FOO=" ^ v]
+    in
+    wait (Spawn.spawn () ~env ~prog:"./print_env.exe" ~argv:["print_env"] ~cwd:(Path "exe"))
+  in
+  tst (Some "foo");
+  [%expect {| Some "foo" |}];
+  tst None;
+  [%expect {| None |}];
+  tst (Some "");
+  [%expect {| Some "" |}]

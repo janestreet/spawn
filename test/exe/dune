@@ -1,2 +1,2 @@
-(executable
- (name hello))
+(executables
+ (names hello print_env))

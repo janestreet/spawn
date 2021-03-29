@@ -4,6 +4,7 @@
  (enabled_if
   (>= %{ocaml_version} 4.04))
  (inline_tests
-  (deps exe/hello.exe))
+  (deps exe/hello.exe exe/print_env.exe
+  ))
  (preprocess
   (pps ppx_expect)))
