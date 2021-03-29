@@ -1,5 +1,9 @@
 open StdLabels
 
+external is_osx : unit -> bool = "spawn_is_osx" [@@noalloc]
+
+let is_osx = is_osx ()
+
 module Working_dir = struct
   type t =
     | Path of string
@@ -15,7 +19,19 @@ module Unix_backend = struct
   let default =
     match Sys.getenv "SPAWN_USE_FORK" with
     | _ -> Fork
-    | exception Not_found -> Vfork
+    | exception Not_found ->
+      (* We observed issues in the past when using [vfork] on OSX. More
+         precisely, it seems that [chdir]/[fchdir] is not taken into account
+         after a vfork. We tried working around this by not doing the directory
+         change in the sub-process when using [vfork] on OSX, and instead doing
+         it in the parent via [pthread_chdir]/[pthread_fchdir]. This was
+         unsuccessful.
+
+         In the end we decided not to default to [vfork] on OSX. *)
+      if is_osx then
+        Fork
+      else
+        Vfork
 end
 
 module type Env = sig
