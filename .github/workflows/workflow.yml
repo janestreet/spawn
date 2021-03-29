@@ -52,5 +52,5 @@ jobs:
         run: opam exec -- ocaml .github/workflows/ci.ml test
 
       - name: test source is well formatted
-        run: opam exec -- make fmt
+        run: opam exec -- ocaml .github/workflows/ci.ml fmt
         if: env.OCAML_VERSION == '4.11.2' && env.OS == 'ubuntu-latest'
