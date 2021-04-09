@@ -178,6 +178,7 @@ static void subprocess_failure(int failure_fd,
      We only store the result of [write] to avoid a warning.
  */
   written = write(failure_fd, &failure, sizeof(failure));
+  (void)written;
   _exit(127);
 }
 
