@@ -26,12 +26,13 @@ homepage: "https://github.com/janestreet/spawn"
 doc: "https://janestreet.github.io/spawn/"
 bug-reports: "https://github.com/janestreet/spawn/issues"
 depends: [
-  "dune" {>= "2.5"}
+  "dune" {>= "2.8"}
   "ppx_expect" {with-test}
   "ocaml" {>= "4.02.3"}
+  "odoc" {with-doc}
 ]
 build: [
-  ["dune" "subst"] {pinned}
+  ["dune" "subst"] {dev}
   [
     "dune"
     "build"
