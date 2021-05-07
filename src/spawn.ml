@@ -144,20 +144,8 @@ let spawn ?env ?(cwd = Working_dir.Inherit) ~prog ~argv ?(stdin = Unix.stdin)
 external safe_pipe : unit -> Unix.file_descr * Unix.file_descr = "spawn_pipe"
 
 let safe_pipe =
-  if Sys.win32 then (
+  if Sys.win32 then
     fun () ->
-  (* CR-someday jdimino: fix race conditions on Windows *)
-  let fdr, fdw = Unix.pipe () in
-  match
-    Unix.set_close_on_exec fdr;
-    Unix.set_close_on_exec fdw
-  with
-  | () -> (fdr, fdw)
-  | exception exn ->
-    (try Unix.close fdr with
-    | _ -> ());
-    (try Unix.close fdw with
-    | _ -> ());
-    raise exn
-  ) else
+  Unix.pipe ~cloexec:true ()
+  else
     safe_pipe
