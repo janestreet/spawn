@@ -522,7 +522,8 @@ CAMLprim value spawn_unix(value v_env,
                           value v_stdin,
                           value v_stdout,
                           value v_stderr,
-                          value v_use_vfork)
+                          value v_use_vfork,
+                          value v_setpgid)
 {
   (void)v_env;
   (void)v_cwd;
@@ -532,6 +533,7 @@ CAMLprim value spawn_unix(value v_env,
   (void)v_stdout;
   (void)v_stderr;
   (void)v_use_vfork;
+  (void)v_setpgid;
   unix_error(ENOSYS, "spawn_unix", Nothing);
 }
 
