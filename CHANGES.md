@@ -1,3 +1,7 @@
+# Unreleased
+
+- Add support for `setpgid` (#23)
+
 # v0.14.0
 
 - Do not use vfork by default on OSX as it seems broken (#20,
