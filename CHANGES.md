@@ -1,4 +1,4 @@
-# Unreleased
+# v0.15.0
 
 - Add support for `setpgid` (#23)
 
