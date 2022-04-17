@@ -563,6 +563,7 @@ CAMLprim value spawn_windows(value v_env,
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
+  DWORD pid;
 
   ZeroMemory(&si, sizeof(si));
   ZeroMemory(&pi, sizeof(pi));
@@ -592,10 +593,13 @@ CAMLprim value spawn_windows(value v_env,
     uerror("CreateProcess", Nothing);
   }
 
+  pid = GetProcessId(pi.hProcess);
+
   close_std_handles(&si);
+  CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
 
-  return Val_long(pi.hProcess);
+  return Val_long(pid);
 }
 
 CAMLprim value spawn_pipe()
