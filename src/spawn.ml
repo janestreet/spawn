@@ -113,12 +113,13 @@ external spawn_windows :
   -> int = "spawn_windows_byte" "spawn_windows"
 
 let maybe_quote f =
-  if String.contains f ' ' ||
-     String.contains f '\"' ||
-     String.contains f '\t' ||
-     f = ""
-  then Filename.quote f
-  else f
+  if
+    String.contains f ' ' || String.contains f '\"' || String.contains f '\t'
+    || f = ""
+  then
+    Filename.quote f
+  else
+    f
 
 let spawn_windows ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork:_
     ~setpgid:_ =
