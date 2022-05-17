@@ -143,3 +143,18 @@ let%expect_test "pgid tests" =
     (Spawn.spawn ~setpgid:Spawn.Pgid.new_process_group ()
        ~prog:"pgid_test/checkpgid.exe" ~argv:[]);
   [%expect {||}]
+
+let%test_unit "sigprocmask" =
+  if not (Sys.win32) then (
+    let run ?sigprocmask expected_signal =
+      let pid = Spawn.spawn ?sigprocmask ~prog:"/usr/bin/sleep" ~argv:[ "60" ] () in
+      Unix.kill pid Sys.sigusr1;
+      Unix.kill pid Sys.sigkill;
+      match Unix.waitpid [] pid with
+      | _, WSIGNALED signal -> assert(signal = expected_signal)
+      | _ -> failwith "unexpected"
+    in
+    run Sys.sigusr1;
+    run ~sigprocmask:(SIG_BLOCK, [Sys.sigusr1]) Sys.sigkill;
+  )
+
