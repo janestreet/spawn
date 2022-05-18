@@ -4,14 +4,14 @@
 #include <caml/memory.h>
 #include <caml/alloc.h>
 #include <caml/unixsupport.h>
-#include <caml/signals.h>
 #include <caml/fail.h>
 
 #include <errno.h>
 
-#ifndef CAML_INTERNALS
-extern int caml_convert_signal_number (int);
-#endif
+#define CAML_INTERNALS
+/* for [caml_convert_signal_number] */
+#include <caml/signals.h>
+#undef CAML_INTERNALS
 
 #if defined(__APPLE__)
 
