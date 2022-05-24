@@ -158,3 +158,8 @@ let%test_unit "sigprocmask" =
     run ~sigprocmask:(SIG_BLOCK, [Sys.sigusr1]) Sys.sigkill;
   )
 
+(* This should be at the end to clean up the test environment *)
+let () =
+  Unix.unlink "sub/foo";
+  Unix.unlink "sub/bar";
+  Unix.rmdir "sub";
