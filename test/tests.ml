@@ -147,7 +147,7 @@ let%expect_test "pgid tests" =
 let%test_unit "sigprocmask" =
   if not (Sys.win32) then (
     let run ?sigprocmask expected_signal =
-      let pid = Spawn.spawn ?sigprocmask ~prog:"/usr/bin/sleep" ~argv:[ "60" ] () in
+      let pid = Spawn.spawn ?sigprocmask ~prog:"/usr/bin/sleep" ~argv:[ "sleep"; "60" ] () in
       Unix.kill pid Sys.sigusr1;
       Unix.kill pid Sys.sigkill;
       match Unix.waitpid [] pid with
