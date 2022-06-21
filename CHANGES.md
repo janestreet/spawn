@@ -1,5 +1,15 @@
 # Unreleased
 
+- Allow setting the sigprocmask for spawned processes (#32)
+
+# v0.15.1
+
+- [windows] Use the same quoting heuristic as the compiler (#29)
+
+- [windows] Fix compilation on cygwin (#29)
+
+# v0.15.0
+
 - Add support for `setpgid` (#23)
 
 # v0.14.0
