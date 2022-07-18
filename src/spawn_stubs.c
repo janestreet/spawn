@@ -15,6 +15,13 @@
 
 #if defined(__APPLE__)
 
+/* vfork(2) is deprecated on macOS >= 12, so we use fork(2) instead. */
+#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED)
+# if __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
+#  define vfork fork
+# endif
+#endif
+
 CAMLprim value spawn_is_osx()
 {
   return Val_true;
