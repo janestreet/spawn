@@ -48,7 +48,7 @@ CAMLprim value spawn_is_osx()
    | pipe2                                                           |
    +-----------------------------------------------------------------+ */
 
-#if defined(__APPLE__) ||defined(__HAIKU__)
+#if defined(__APPLE__) || defined(__HAIKU__)
 
 static int safe_pipe(int fd[2])
 {
