@@ -1,11 +1,9 @@
 # SPAWN - spawning system process
 
-[![Travis status][travis-img]][travis] [![AppVeyor status][appveyor-img]][appveyor]
+[![GitHub Actions status][actions-img]][actions]
 
-[travis]:         https://travis-ci.org/janestreet/spawn
-[travis-img]:     https://travis-ci.org/janestreet/spawn.svg?branch=master
-[appveyor]:       https://ci.appveyor.com/project/diml/ppxlib/branch/master
-[appveyor-img]:   https://ci.appveyor.com/api/projects/status/bogbsm33uvh083jx?svg=true
+[actions]:        https://github.com/janestreet/spawn/actions
+[actions-img]:    https://github.com/janestreet/spawn/actions/workflows/workflow.yml/badge.svg
 
 Spawn is a small library exposing only one function:
 `Spawn.spawn`. Its purpose is to start command in the
