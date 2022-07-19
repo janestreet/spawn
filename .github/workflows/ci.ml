@@ -11,8 +11,10 @@ let run cmd args =
 
 let opam args = run "opam" args
 
+let build () =
+  opam [ "install"; "."; "--deps-only"; "--with-test" ]
+
 let test () =
-  opam [ "install"; "."; "--deps-only"; "--with-test" ];
   run "dune" [ "runtest" ]
 
 let fmt () =
@@ -27,8 +29,9 @@ let fmt () =
 
 let () =
   match Sys.argv with
+  | [| _; "build" |] -> build ()
   | [| _; "test" |] -> test ()
   | [| _; "fmt" |] -> fmt ()
   | _ ->
-    prerr_endline "Usage: ci.ml [fmt | test]";
+    prerr_endline "Usage: ci.ml [ build | test | fmt ]";
     exit 1
