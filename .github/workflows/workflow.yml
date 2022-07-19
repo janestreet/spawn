@@ -12,8 +12,10 @@ jobs:
         # We test:
         # - once for each architecture with the latest OCaml
         # - once for a few older versions of OCaml under Linux
+        # - both macos-latest (11) and 12
         os:
-          - macos-latest
+          - macos-11
+          - macos-12
           - ubuntu-latest
           - windows-latest
         ocaml-version:
