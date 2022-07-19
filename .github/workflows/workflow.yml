@@ -43,7 +43,7 @@ jobs:
       - name: Setup OCaml ${{ matrix.ocaml-version }}
         uses: ocaml/setup-ocaml@v2
         with:
-          cache-prefix: v1-${{ matrix.os }}
+          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-version }}
           dune-cache: true
           ocaml-compiler: ${{ matrix.ocaml-version }}
 
