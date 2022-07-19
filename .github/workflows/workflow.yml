@@ -1,8 +1,10 @@
 name: Main workflow
 
 on:
-  - push
-  - pull_request
+  pull_request:
+  push:
+  schedule:
+    - cron: 0 1 * * MON
 
 jobs:
   build:
@@ -42,6 +44,8 @@ jobs:
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
+          dune-cache: true
+          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-version }}
 
       - run: opam exec -- ocaml .github/workflows/ci.ml pin
 
