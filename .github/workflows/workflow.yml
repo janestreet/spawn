@@ -43,12 +43,14 @@ jobs:
       - name: Setup OCaml ${{ matrix.ocaml-version }}
         uses: ocaml/setup-ocaml@v2
         with:
+          cache-prefix:  v1-${{ matrix.os }}
+          dune-cache:    true
           ocaml-version: ${{ matrix.ocaml-version }}
-          dune-cache: true
-          cache-prefix: v1-${{ matrix.os }}
+          opam-pin:      true
+          opam-local-packages: "*.opam"
 
-      - name: Pin OPAM versions
-        run: opam exec -- ocaml .github/workflows/ci.ml pin
+      # - name: Pin OPAM versions
+      #   run: opam exec -- ocaml .github/workflows/ci.ml pin
 
       - name: Run test suite
         run: opam exec -- ocaml .github/workflows/ci.ml test
