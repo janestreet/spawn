@@ -7,7 +7,7 @@ on:
     - cron: 0 1 * * MON
 
 jobs:
-  CI:
+  Tests:
     strategy:
       fail-fast: false
       matrix:
@@ -20,21 +20,17 @@ jobs:
           - macos-12
           - ubuntu-latest
           - windows-latest
-        ocaml-version:
+        ocaml-compiler:
           - 4.13.1
         include:
-          - ocaml-version: 4.10.0
+          - ocaml-compiler: 4.10.0
             os: ubuntu-latest
-          - ocaml-version: 4.09.1
+          - ocaml-compiler: 4.09.1
             os: ubuntu-latest
-          - ocaml-version: 4.08.1
+          - ocaml-compiler: 4.08.1
             os: ubuntu-latest
-          - ocaml-version: 4.05.0
+          - ocaml-compiler: 4.05.0
             os: ubuntu-latest
-
-    env:
-      OCAML_VERSION: ${{ matrix.ocaml-version }}
-      OS: ${{ matrix.os }}
 
     runs-on: ${{ matrix.os }}
 
@@ -42,12 +38,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup OCaml ${{ matrix.ocaml-version }}
+      - name: Setup OCaml ${{ matrix.ocaml-compiler }}
         uses: ocaml/setup-ocaml@v2
         with:
-          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-version }}
+          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-compiler }}
           dune-cache: true
-          ocaml-compiler: ${{ matrix.ocaml-version }}
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
       - name: Build dependencies
         run: opam exec -- ocaml .github/workflows/ci.ml build
@@ -55,6 +51,25 @@ jobs:
       - name: Run test suite
         run: opam exec -- ocaml .github/workflows/ci.ml test
 
+  Format:
+    strategy:
+      matrix:
+        include:
+         - ocaml-compiler: 4.13.1
+           os: ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-compiler }}
+          dune-cache: true
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
       - name: Check that source is well formatted
-        run: opam exec -- ocaml .github/workflows/ci.ml fmt
-        if: env.OCAML_VERSION == '4.13.1' && env.OS == 'ubuntu-latest'
+        uses: ocaml/setup-ocaml/lint-fmt@v2
