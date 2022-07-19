@@ -43,5 +43,5 @@ let () =
   | [| _; "test" |] -> test ()
   | [| _; "fmt" |] -> fmt ()
   | _ ->
-    prerr_endline "Usage: ci.ml [pin | test]";
+    prerr_endline "Usage: ci.ml [fmt | pin | test]";
     exit 1
