@@ -44,6 +44,8 @@ jobs:
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
+          dune-cache: true
+          cache-prefix: v1-${{ matrix.os }}
 
       - name: Pin OPAM versions
         run: opam exec -- ocaml .github/workflows/ci.ml pin
