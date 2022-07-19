@@ -45,7 +45,7 @@ jobs:
         with:
           cache-prefix:  v1-${{ matrix.os }}
           dune-cache:    true
-          ocaml-version: ${{ matrix.ocaml-version }}
+          ocaml-compiler: ${{ matrix.ocaml-version }}
           opam-pin:      true
           opam-local-packages: "*.opam"
 
