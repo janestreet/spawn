@@ -47,6 +47,9 @@ jobs:
           dune-cache: true
           ocaml-compiler: ${{ matrix.ocaml-version }}
 
+      - name: Build dependencies
+        run: opam exec -- ocaml .github/workflows/ci.ml build
+
       - name: Run test suite
         run: opam exec -- ocaml .github/workflows/ci.ml test
 
