@@ -1,11 +1,11 @@
-name: CI
+name: Main workflow
 
 on:
   - push
   - pull_request
 
 jobs:
-  build:
+  CI:
     strategy:
       fail-fast: false
       matrix:
