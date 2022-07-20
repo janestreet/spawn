@@ -15,13 +15,13 @@ jobs:
         # - once for each architecture with the latest OCaml
         # - once for a few older versions of OCaml under Linux
         # - both macos-latest (11) and 12
+        ocaml-compiler:
+          - 4.13.1
         os:
           - macos-11
           - macos-12
           - ubuntu-latest
           - windows-latest
-        ocaml-compiler:
-          - 4.13.1
         include:
           - ocaml-compiler: 4.10.0
             os: ubuntu-latest
