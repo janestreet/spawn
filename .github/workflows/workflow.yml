@@ -25,6 +25,8 @@ jobs:
           - {os: ubuntu-latest, ocaml: 4.10.0}
           - {os: ubuntu-latest, ocaml: 4.09.1}
           - {os: ubuntu-latest, ocaml: 4.08.1}
+          # Allow tests to fail on Windows (ppx_expect is broken):
+          - {os: windows-latest, allow-failure: true}
 
     runs-on: ${{ matrix.os }}
 
@@ -44,6 +46,7 @@ jobs:
 
       - name: Run test suite
         run: opam exec -- ocaml .github/workflows/ci.ml test
+        continue-on-error: ${{ matrix.allow-failure || false }}
 
   Format:
     strategy:
