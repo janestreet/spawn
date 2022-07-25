@@ -19,13 +19,13 @@ jobs:
         # - once for each architecture with the latest OCaml
         # - once for a few older versions of OCaml under Linux
         os: [macos-latest, ubuntu-latest, windows-latest]
-        ocaml-compiler: [4.14.0]
+        ocaml: [4.14.0]
         include:
-          - {os: ubuntu-latest, ocaml-compiler: 4.13.1}
-          - {os: ubuntu-latest, ocaml-compiler: 4.10.0}
-          - {os: ubuntu-latest, ocaml-compiler: 4.09.1}
-          - {os: ubuntu-latest, ocaml-compiler: 4.08.1}
-          - {os: ubuntu-latest, ocaml-compiler: 4.05.0}
+          - {os: ubuntu-latest, ocaml: 4.13.1}
+          - {os: ubuntu-latest, ocaml: 4.10.0}
+          - {os: ubuntu-latest, ocaml: 4.09.1}
+          - {os: ubuntu-latest, ocaml: 4.08.1}
+          - {os: ubuntu-latest, ocaml: 4.05.0}
 
     runs-on: ${{ matrix.os }}
 
@@ -36,9 +36,9 @@ jobs:
       - name: Setup OCaml ${{ matrix.ocaml-version }}
         uses: ocaml/setup-ocaml@v2
         with:
-          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-compiler }}
+          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml }}
           dune-cache: true
-          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          ocaml-compiler: ${{ matrix.ocaml }}
 
       - name: Build dependencies
         run: opam exec -- ocaml .github/workflows/ci.ml build
@@ -50,7 +50,7 @@ jobs:
     strategy:
       matrix:
         include:
-         - ocaml-compiler: 4.13.1
+         - ocaml: 4.13.1
            os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
@@ -59,12 +59,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup OCaml ${{ matrix.ocaml-compiler }}
+      - name: Setup OCaml ${{ matrix.ocaml }}
         uses: ocaml/setup-ocaml@v2
         with:
-          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml-compiler }}
+          cache-prefix: v1-${{ matrix.os }}-${{ matrix.ocaml }}
           dune-cache: true
-          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+          ocaml-compiler: ${{ matrix.ocaml }}
 
       - name: Check that source is well formatted
         uses: ocaml/setup-ocaml/lint-fmt@v2
