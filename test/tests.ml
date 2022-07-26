@@ -140,11 +140,14 @@ let%expect_test "prog relative to cwd" =
 
 let%expect_test "env" =
   let tst v =
-    let env = match v with
+    let env =
+      match v with
       | None -> Spawn.Env.of_list []
-      | Some v -> Spawn.Env.of_list ["FOO=" ^ v]
+      | Some v -> Spawn.Env.of_list [ "FOO=" ^ v ]
     in
-    wait (Spawn.spawn () ~env ~prog:"./print_env.exe" ~argv:["print_env"] ~cwd:(Path "exe"))
+    wait
+      (Spawn.spawn () ~env ~prog:"./print_env.exe" ~argv:[ "print_env" ]
+         ~cwd:(Path "exe"))
   in
   tst (Some "foo");
   [%expect {| Some "foo" |}];
@@ -160,22 +163,22 @@ let%expect_test "pgid tests" =
   [%expect {||}]
 
 let%test_unit "sigprocmask" =
-  if not (Sys.win32) then (
+  if not Sys.win32 then (
     let run ?sigprocmask expected_signal =
       let prog = Program_lookup.find_prog "sleep" in
       let pid = Spawn.spawn ?sigprocmask ~prog ~argv:[ "sleep"; "60" ] () in
       Unix.kill pid Sys.sigusr1;
       Unix.kill pid Sys.sigkill;
       match Unix.waitpid [] pid with
-      | _, WSIGNALED signal -> assert(signal = expected_signal)
+      | _, WSIGNALED signal -> assert (signal = expected_signal)
       | _ -> failwith "unexpected"
     in
     run Sys.sigusr1;
-    run ~sigprocmask:(SIG_BLOCK, [Sys.sigusr1]) Sys.sigkill;
+    run ~sigprocmask:(SIG_BLOCK, [ Sys.sigusr1 ]) Sys.sigkill
   )
 
 (* This should be at the end to clean up the test environment *)
 let () =
   Unix.unlink "sub/foo";
   Unix.unlink "sub/bar";
-  Unix.rmdir "sub";
+  Unix.rmdir "sub"

@@ -166,7 +166,8 @@ let spawn ?env ?(cwd = Working_dir.Inherit) ~prog ~argv ?(stdin = Unix.stdin)
     | Vfork -> true
     | Fork -> false
   in
-  backend ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork ~setpgid ~sigprocmask
+  backend ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork ~setpgid
+    ~sigprocmask
 
 external safe_pipe : unit -> Unix.file_descr * Unix.file_descr = "spawn_pipe"
 

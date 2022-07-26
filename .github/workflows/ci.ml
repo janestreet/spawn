@@ -11,20 +11,10 @@ let run cmd args =
 
 let opam args = run "opam" args
 
-let pin () =
-  let packages =
-    let packages = Sys.readdir "." |> Array.to_list in
-    List.fold_left packages ~init:[] ~f:(fun acc fname ->
-        if Filename.check_suffix fname ".opam" then
-          Filename.chop_suffix fname ".opam" :: acc
-        else
-          acc)
-  in
-  List.iter packages ~f:(fun package ->
-      opam [ "pin"; "add"; package ^ ".next"; "."; "--no-action" ])
+let build () =
+  opam [ "install"; "."; "--deps-only"; "--with-test" ]
 
 let test () =
-  opam [ "install"; "."; "--deps-only"; "--with-test" ];
   run "dune" [ "runtest" ]
 
 let fmt () =
@@ -39,9 +29,9 @@ let fmt () =
 
 let () =
   match Sys.argv with
-  | [| _; "pin" |] -> pin ()
+  | [| _; "build" |] -> build ()
   | [| _; "test" |] -> test ()
   | [| _; "fmt" |] -> fmt ()
   | _ ->
-    prerr_endline "Usage: ci.ml [pin | test]";
+    prerr_endline "Usage: ci.ml [ build | test | fmt ]";
     exit 1
