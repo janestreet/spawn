@@ -530,12 +530,16 @@ CAMLprim value spawn_unix(value v_env,
   char *e_function = NULL;
 
   posix_spawn_file_actions_t actions;
-  if (posix_spawn_file_actions_init(&actions))
-    caml_raise_out_of_memory();
+  if (posix_spawn_file_actions_init(&actions)) {
+    e_function = "posix_spawn_file_actions_init";
+    goto cleanup;
+  }
 
   posix_spawnattr_t attr;
-  if (posix_spawnattr_init(&attr))
-    caml_raise_out_of_memory();
+  if (posix_spawnattr_init(&attr)) {
+    e_function = "posix_spawnattr_init";
+    goto cleanup;
+  }
 
   struct spawn_info info;
   init_spawn_info(&info,
