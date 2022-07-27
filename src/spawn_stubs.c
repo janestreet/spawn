@@ -609,9 +609,12 @@ CAMLprim value spawn_unix(value v_env,
     }
   }
 
+  caml_enter_blocking_section();
   e_error = posix_spawn(&pid, info.prog,
                         &actions, &attr,
                         info.argv, info.env);
+  caml_leave_blocking_section();
+
   if (e_error) {
     e_function = "posix_spawn";
     goto cleanup;
