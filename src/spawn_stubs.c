@@ -551,20 +551,20 @@ CAMLprim value spawn_unix(value v_env,
   if (info.set_pgid) attr_flags |= POSIX_SPAWN_SETPGROUP;
   e_error = posix_spawnattr_setflags(&attr, attr_flags);
   if (e_error) {
-    e_function = "setpgid";
+    e_function = "posix_spawnattr_setflags";
     goto cleanup;
   }
 
   e_error = posix_spawnattr_setsigmask(&attr, &info.child_sigmask);
   if (e_error) {
-    e_function = "pthread_sigmask";
+    e_function = "posix_spawnattr_setsigmask";
     goto cleanup;
   }
 
   if (info.set_pgid) {
     e_error = posix_spawnattr_setpgroup(&attr, info.pgid);
     if (e_error) {
-      e_function = "setpgid";
+      e_function = "posix_spawnattr_setpgroup";
       goto cleanup;
     }
   }
@@ -574,7 +574,7 @@ CAMLprim value spawn_unix(value v_env,
     case PATH:
       e_error = posix_spawn_file_actions_addchdir_np(&actions, info.cwd.path);
       if (e_error) {
-        e_function = "chdir";
+        e_function = "posix_spawn_file_actions_addchdir_np";
         e_arg = Field(v_cwd, 0);
         goto cleanup;
       }
@@ -582,7 +582,7 @@ CAMLprim value spawn_unix(value v_env,
     case FD:
       e_error = posix_spawn_file_actions_addfchdir_np(&actions, info.cwd.fd);
       if (e_error) {
-        e_function = "fchdir";
+        e_function = "posix_spawn_file_actions_addfchdir_np";
         e_arg = Field(v_cwd, 0);
         goto cleanup;
       }
@@ -599,13 +599,13 @@ CAMLprim value spawn_unix(value v_env,
 
     e_error = posix_spawn_file_actions_adddup2(&actions, tmp_fd, fd);
     if (e_error) {
-      e_function = "dup2";
+      e_function = "posix_spawn_file_actions_adddup2";
       goto cleanup;
     }
 
     e_error = posix_spawn_file_actions_addclose(&actions, tmp_fd);
     if (e_error) {
-      e_function = "close";
+      e_function = "posix_spawn_file_actions_addclose";
       goto cleanup;
     }
   }
