@@ -15,13 +15,10 @@
 
 #if defined(__APPLE__)
 
-#if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
-# if defined(HAS_POSIX_SPAWN)
+# if defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
 #  define USE_POSIX_SPAWN
-# else
 #  define vfork fork
 # endif
-#endif
 
 CAMLprim value spawn_is_osx()
 {
@@ -39,10 +36,16 @@ CAMLprim value spawn_is_osx()
 
 #if !defined(_WIN32)
 
+# if defined(USE_POSIX_SPAWN)
+#  include <spawn.h>
+
+#  if !defined(__APPLE__)
+#   define posix_spawn_file_actions_addchdir_np(...)  ENOSYS
+#   define posix_spawn_file_actions_addfchdir_np(...) ENOSYS
+#  endif
+# endif
+
 #include <assert.h>
-#if defined(USE_POSIX_SPAWN)
-#include <spawn.h>
-#endif
 #include <string.h>
 #if !defined(__CYGWIN__)
 #include <sys/syscall.h>
@@ -536,7 +539,7 @@ CAMLprim value spawn_unix(value v_env,
     goto cleanup;
   }
 
-  e_error = posix_spawnattr_setsigmask(&attr, &info.sigprocmask);
+  e_error = posix_spawnattr_setsigmask(&attr, &info.child_sigmask);
   if (e_error) {
     e_function = "posix_spawnattr_setsigmask";
     goto cleanup;
