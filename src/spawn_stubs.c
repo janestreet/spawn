@@ -406,7 +406,8 @@ static void init_spawn_info(struct spawn_info *info,
                             value v_stdin,
                             value v_stdout,
                             value v_stderr,
-                            value v_setpgid)
+                            value v_setpgid,
+                            value v_sigprocmask)
 {
   extern char ** environ;
 
@@ -445,22 +446,9 @@ static void init_spawn_info(struct spawn_info *info,
   info->pgid =
     Is_block(v_setpgid) ?
     Long_val(Field(v_setpgid, 0)) : 0;
-}
-
-/* Initializes `info->child_sigmask` as requested by `v_sigprocmask`. If
-   `new_mask` is non-null then the current pthread signal mask is replaced by
-   `*new_mask`. If `old_mask` is non-null then `*old_mask` is assigned a copy of
-   the current (i.e., old) pthread signal mask.
-    */
-static void init_spawn_info_sigmask(struct spawn_info *info,
-                                    value v_sigprocmask,
-                                    sigset_t const *new_mask,
-                                    sigset_t *old_mask)
-{
-  sigset_t* child_sigmask = &info->child_sigmask;
 
   if (v_sigprocmask == Val_long(0)) {
-    sigemptyset(child_sigmask);
+    sigemptyset(&info->child_sigmask);
   } else {
     v_sigprocmask = Field(v_sigprocmask, 0);
     value v_sigprocmask_command = Field(v_sigprocmask, 0);
@@ -468,14 +456,12 @@ static void init_spawn_info_sigmask(struct spawn_info *info,
 
     switch (sigprocmask_command) {
       case CAML_SIG_SETMASK:
-        sigemptyset(child_sigmask);
+        sigemptyset(&info->child_sigmask);
         break;
 
       case CAML_SIG_BLOCK:
       case CAML_SIG_UNBLOCK:
-        pthread_sigmask(SIG_SETMASK, new_mask, child_sigmask);
-        if (old_mask) *old_mask = info->child_sigmask;
-        new_mask = old_mask = NULL; /* Skip pthread_sigmask at end of function. */
+        pthread_sigmask(SIG_SETMASK, NULL, &info->child_sigmask);
         break;
 
       default:
@@ -489,11 +475,11 @@ static void init_spawn_info_sigmask(struct spawn_info *info,
       switch (sigprocmask_command) {
         case CAML_SIG_SETMASK:
         case CAML_SIG_BLOCK:
-          sigaddset(child_sigmask, signal);
+          sigaddset(&info->child_sigmask, signal);
           break;
 
         case CAML_SIG_UNBLOCK:
-          sigdelset(child_sigmask, signal);
+          sigdelset(&info->child_sigmask, signal);
           break;
 
         default:
@@ -501,9 +487,6 @@ static void init_spawn_info_sigmask(struct spawn_info *info,
       }
     }
   }
-
-  if (new_mask || old_mask)
-    pthread_sigmask(SIG_SETMASK, new_mask, old_mask);
 }
 
 #if defined(USE_POSIX_SPAWN)
@@ -542,10 +525,8 @@ CAMLprim value spawn_unix(value v_env,
   }
 
   struct spawn_info info;
-  init_spawn_info(&info,
-                  v_env, v_cwd, v_prog, v_argv,
-                  v_stdin, v_stdout, v_stderr, v_setpgid);
-  init_spawn_info_sigmask(&info, v_sigprocmask, NULL, NULL);
+  init_spawn_info(&info, v_env, v_cwd, v_prog, v_argv,
+                  v_stdin, v_stdout, v_stderr, v_setpgid, v_sigprocmask);
 
   short attr_flags = POSIX_SPAWN_SETSIGMASK;
   if (info.set_pgid) attr_flags |= POSIX_SPAWN_SETPGROUP;
@@ -555,7 +536,7 @@ CAMLprim value spawn_unix(value v_env,
     goto cleanup;
   }
 
-  e_error = posix_spawnattr_setsigmask(&attr, &info.child_sigmask);
+  e_error = posix_spawnattr_setsigmask(&attr, &info.sigprocmask);
   if (e_error) {
     e_function = "posix_spawnattr_setsigmask";
     goto cleanup;
@@ -661,9 +642,8 @@ CAMLprim value spawn_unix(value v_env,
   int errno_after_forking = 0;
   int status;
 
-  init_spawn_info(&info,
-                  v_env, v_cwd, v_prog, v_argv,
-                  v_stdin, v_stdout, v_stderr, v_setpgid);
+  init_spawn_info(&info, v_env, v_cwd, v_prog, v_argv,
+                  v_stdin, v_stdout, v_stderr, v_setpgid, v_sigprocmask);
 
   caml_enter_blocking_section();
   enter_safe_pipe_section();
@@ -688,7 +668,7 @@ CAMLprim value spawn_unix(value v_env,
   */
   pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cancel_state);
   sigfillset(&sigset);
-  init_spawn_info_sigmask(&info, v_sigprocmask, &sigset, &saved_procmask);
+  pthread_sigmask(SIG_SETMASK, &sigset, &saved_procmask);
 
   ret = Bool_val(v_use_vfork) ? vfork() : fork();
 
