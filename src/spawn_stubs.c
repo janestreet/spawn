@@ -583,7 +583,6 @@ CAMLprim value spawn_unix(value v_env,
       e_error = posix_spawn_file_actions_addfchdir_np(&actions, info.cwd.fd);
       if (e_error) {
         e_function = "posix_spawn_file_actions_addfchdir_np";
-        e_arg = Field(v_cwd, 0);
         goto cleanup;
       }
       break;
