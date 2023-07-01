@@ -8,10 +8,8 @@
 
 #include <errno.h>
 
-#define CAML_INTERNALS
-/* for [caml_convert_signal_number] */
 #include <caml/signals.h>
-#undef CAML_INTERNALS
+CAMLextern int caml_convert_signal_number(int);
 
 #if defined(__APPLE__)
 
