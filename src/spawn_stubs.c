@@ -175,7 +175,11 @@ static void subprocess_failure(int failure_fd,
   sigset_t sigset;
   ssize_t written;
 
+#ifdef PIPE_BUF
   CASSERT(sizeof(failure) < PIPE_BUF)
+#else
+  CASSERT(sizeof(failure) < _POSIX_PIPE_BUF)
+#endif
 
   set_error(&failure, errno, function, error_arg);
 
