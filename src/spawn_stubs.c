@@ -33,7 +33,7 @@ CAMLprim value spawn_is_osx()
 
 #include <assert.h>
 #include <string.h>
-#if !defined(__CYGWIN__)
+#if !defined(__CYGWIN__) && !defined(__HAIKU__)
 #include <sys/syscall.h>
 #endif
 #include <sys/types.h>
@@ -48,7 +48,7 @@ CAMLprim value spawn_is_osx()
    | pipe2                                                           |
    +-----------------------------------------------------------------+ */
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__HAIKU__)
 
 /* vfork(2) is deprecated on macOS >= 12, so we use fork(2) instead. */
 # if defined(__MAC_OS_X_VERSION_MAX_ALLOWED)
