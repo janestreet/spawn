@@ -1,5 +1,8 @@
 # Unreleased
 
+- [haiku] Fix compilation on Haiku OS. The header sys/syscalls.h isn't
+  available, neither is pipe2()
+
 - Allow setting the sigprocmask for spawned processes (#32)
 
 # v0.15.1
