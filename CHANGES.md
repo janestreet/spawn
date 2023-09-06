@@ -1,5 +1,8 @@
 # Unreleased
 
+- Fix compatibility with systems that do not define `PIPE_BUF`. Use
+  `_POSIX_PIPE_BUF` as a fallback. (#49)
+
 - [haiku] Fix compilation on Haiku OS. The header sys/syscalls.h isn't
   available, neither is pipe2()
 
