@@ -1,5 +1,7 @@
 # Unreleased
 
+- Skip calls to pthread_cancelstate on android, as its not available (#52)
+
 - Fix compatibility with systems that do not define `PIPE_BUF`. Use
   `_POSIX_PIPE_BUF` as a fallback. (#49)
 
