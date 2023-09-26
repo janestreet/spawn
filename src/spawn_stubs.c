@@ -1,5 +1,8 @@
 #define _GNU_SOURCE
 
+#define CAML_INTERNALS
+/* for [caml_convert_signal_number] */
+
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
@@ -8,10 +11,7 @@
 
 #include <errno.h>
 
-#define CAML_INTERNALS
-/* for [caml_convert_signal_number] */
 #include <caml/signals.h>
-#undef CAML_INTERNALS
 
 #if defined(__APPLE__)
 
