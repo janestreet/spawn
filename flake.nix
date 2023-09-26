@@ -26,7 +26,7 @@
         };
         devShells.default = pkgs.mkShell {
           inputsFrom = pkgs.lib.attrValues packages;
-          buildInputs = with pkgs.ocamlPackages; [ ocaml-lsp pkgs.ocamlformat_0_19_0 ];
+          buildInputs = with pkgs.ocamlPackages; [ ocaml-lsp pkgs.ocamlformat_0_26_0 ];
         };
       });
 }
