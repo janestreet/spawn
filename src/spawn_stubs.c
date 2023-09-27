@@ -2,6 +2,8 @@
 
 #define CAML_INTERNALS
 /* for [caml_convert_signal_number] */
+#include <caml/signals.h>
+#undef CAML_INTERNALS
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -10,8 +12,6 @@
 #include <caml/fail.h>
 
 #include <errno.h>
-
-#include <caml/signals.h>
 
 #if defined(__APPLE__)
 
