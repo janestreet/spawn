@@ -42,13 +42,16 @@ module Env_win32 : Env = struct
   type t = string
 
   let of_list env =
-    let len = List.fold_left env ~init:1 ~f:(fun acc s -> acc + String.length s + 1) in
-    let buf = Buffer.create len in
-    List.iter env ~f:(fun s ->
-      Buffer.add_string buf s;
-      Buffer.add_char buf '\000');
-    Buffer.add_char buf '\000';
-    Buffer.contents buf
+    if env = [] then
+      "\000\000"
+    else
+      let len = List.fold_left env ~init:1 ~f:(fun acc s -> acc + String.length s + 1) in
+      let buf = Buffer.create len in
+      List.iter env ~f:(fun s ->
+        Buffer.add_string buf s;
+        Buffer.add_char buf '\000');
+      Buffer.add_char buf '\000';
+      Buffer.contents buf
   ;;
 end
 

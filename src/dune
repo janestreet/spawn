@@ -3,7 +3,8 @@
  (public_name spawn)
  (foreign_stubs
   (language c)
-  (names spawn_stubs))
+  (names spawn_stubs)
+  (flags :standard -DUNICODE -D_UNICODE))
  ;; We don't use the thread library directly, however we use pthread
  ;; functions in the stubs, so declare a dependency on thread.
  ;;
