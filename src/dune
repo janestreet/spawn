@@ -1,7 +1,6 @@
 (library
  (name spawn)
  (public_name spawn)
- (modules :standard \ flags)
  (foreign_stubs
   (language c)
   (names spawn_stubs)
@@ -15,9 +14,13 @@
  (libraries unix threads))
 
 (rule
-  (with-stdout-to flags.sexp
-    (run ocaml %{dep:flags.ml})))
+  (target flags.sexp)
+  (enabled_if (= %{os_type} "Win32"))
+  (action
+    (with-stdout-to %{target} (echo "(-DUNICODE -D_UNICODE)"))))
 
 (rule
-  (with-stdout-to flags.ml
-    (echo "print_endline @@ if Sys.win32 then \"(-DUNICODE -D_UNICODE)\" else \"()\"")))
+  (target flags.sexp)
+  (enabled_if (<> %{os_type} "Win32"))
+  (action
+    (with-stdout-to %{target} (echo "()"))))
