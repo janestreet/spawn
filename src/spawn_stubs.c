@@ -664,7 +664,7 @@ CAMLprim value spawn_windows(value v_env,
     v_env = Field(v_env, 0);
     mlsize_t len = caml_string_length(v_env);
     int size = caml_win32_multi_byte_to_wide_char(String_val(v_env), len, NULL, 0);
-    env = caml_stat_alloc((size + 1) * sizeof(WCHAR));
+    env = caml_stat_alloc(size * sizeof(WCHAR));
     caml_win32_multi_byte_to_wide_char(String_val(v_env), len, env, size);
   }
 
