@@ -654,11 +654,25 @@ CAMLprim value spawn_windows(value v_env,
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
-  WCHAR *prog = caml_stat_strdup_to_utf16(String_val(v_prog));
-  WCHAR *cmdline = caml_stat_strdup_to_utf16(String_val(v_cmdline));
+  WCHAR *prog;
+  WCHAR *cmdline;
   WCHAR *env = NULL;
   WCHAR *cwd = NULL;
   BOOL result;
+
+  ZeroMemory(&si, sizeof(si));
+  ZeroMemory(&pi, sizeof(pi));
+
+  if (!dup2_and_clear_close_on_exec(v_stdin , &si.hStdInput ) ||
+      !dup2_and_clear_close_on_exec(v_stdout, &si.hStdOutput) ||
+      !dup2_and_clear_close_on_exec(v_stderr, &si.hStdError )) {
+    caml_win32_maperr(GetLastError());
+    close_std_handles(&si);
+    uerror("DuplicateHandle", Nothing);
+  }
+
+  prog = caml_stat_strdup_to_utf16(String_val(v_prog));
+  cmdline = caml_stat_strdup_to_utf16(String_val(v_cmdline));
 
   if (Is_block(v_env)) {
     v_env = Field(v_env, 0);
@@ -671,18 +685,8 @@ CAMLprim value spawn_windows(value v_env,
   if (Is_block(v_cwd))
     cwd = caml_stat_strdup_to_utf16(String_val(Field(v_cwd, 0)));
 
-  ZeroMemory(&si, sizeof(si));
-  ZeroMemory(&pi, sizeof(pi));
   si.cb = sizeof(si);
-  si.dwFlags    = STARTF_USESTDHANDLES;
-
-  if (!dup2_and_clear_close_on_exec(v_stdin , &si.hStdInput ) ||
-      !dup2_and_clear_close_on_exec(v_stdout, &si.hStdOutput) ||
-      !dup2_and_clear_close_on_exec(v_stderr, &si.hStdError )) {
-    caml_win32_maperr(GetLastError());
-    close_std_handles(&si);
-    uerror("DuplicateHandle", Nothing);
-  }
+  si.dwFlags = STARTF_USESTDHANDLES;
 
   result =
     CreateProcess(prog, cmdline, NULL, NULL, TRUE, CREATE_UNICODE_ENVIRONMENT,
