@@ -3,7 +3,10 @@
  (public_name spawn)
  (foreign_stubs
   (language c)
-  (names spawn_stubs))
+  (names spawn_stubs)
+  (flags
+   (:standard
+    (:include flags.sexp))))
  ;; We don't use the thread library directly, however we use pthread
  ;; functions in the stubs, so declare a dependency on thread.
  ;;
@@ -11,3 +14,21 @@
  ;; c_library_flags. However, this would require testing that it is
  ;; supported.
  (libraries unix threads))
+
+(rule
+ (target flags.sexp)
+ (enabled_if
+  (= %{os_type} "Win32"))
+ (action
+  (with-stdout-to
+   %{target}
+   (echo "(-DUNICODE -D_UNICODE)"))))
+
+(rule
+ (target flags.sexp)
+ (enabled_if
+  (<> %{os_type} "Win32"))
+ (action
+  (with-stdout-to
+   %{target}
+   (echo "()"))))
