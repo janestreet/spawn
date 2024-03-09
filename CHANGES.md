@@ -1,5 +1,8 @@
 # Unreleased
 
+- Fix spawning processes on Windows when environment contains non-ascii
+  characters (#58)
+
 - Skip calls to pthread_cancelstate on android, as its not available (#52)
 
 - Fix compatibility with systems that do not define `PIPE_BUF`. Use
