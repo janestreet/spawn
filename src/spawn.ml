@@ -37,8 +37,8 @@ let no_null s =
   then
     Printf.ksprintf
       invalid_arg
-      "Spawn.Env.of_list: NUL bytes are not allowed in the environment but found one \
-       in %S"
+      "Spawn.Env.of_list: NUL bytes are not allowed in the environment but found one in \
+       %S"
       s
 ;;
 
@@ -52,9 +52,9 @@ module Env_win32 : Env = struct
   type t = string
 
   let of_list env =
-    if env = [] then
-      "\000\000"
-    else
+    if env = []
+    then "\000\000"
+    else (
       let len = List.fold_left env ~init:1 ~f:(fun acc s -> acc + String.length s + 1) in
       let buf = Buffer.create len in
       List.iter env ~f:(fun s ->
@@ -62,7 +62,7 @@ module Env_win32 : Env = struct
         Buffer.add_string buf s;
         Buffer.add_char buf '\000');
       Buffer.add_char buf '\000';
-      Buffer.contents buf
+      Buffer.contents buf)
   ;;
 end
 

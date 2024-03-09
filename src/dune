@@ -4,7 +4,9 @@
  (foreign_stubs
   (language c)
   (names spawn_stubs)
-  (flags (:standard (:include flags.sexp))))
+  (flags
+   (:standard
+    (:include flags.sexp))))
  ;; We don't use the thread library directly, however we use pthread
  ;; functions in the stubs, so declare a dependency on thread.
  ;;
@@ -14,13 +16,19 @@
  (libraries unix threads))
 
 (rule
-  (target flags.sexp)
-  (enabled_if (= %{os_type} "Win32"))
-  (action
-    (with-stdout-to %{target} (echo "(-DUNICODE -D_UNICODE)"))))
+ (target flags.sexp)
+ (enabled_if
+  (= %{os_type} "Win32"))
+ (action
+  (with-stdout-to
+   %{target}
+   (echo "(-DUNICODE -D_UNICODE)"))))
 
 (rule
-  (target flags.sexp)
-  (enabled_if (<> %{os_type} "Win32"))
-  (action
-    (with-stdout-to %{target} (echo "()"))))
+ (target flags.sexp)
+ (enabled_if
+  (<> %{os_type} "Win32"))
+ (action
+  (with-stdout-to
+   %{target}
+   (echo "()"))))
