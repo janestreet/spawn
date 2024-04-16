@@ -1,5 +1,7 @@
 # Unreleased
 
+- Support older GCC like 4.8.5 (#59)
+
 - Fix spawning processes on Windows when environment contains non-ascii
   characters (#58)
 
