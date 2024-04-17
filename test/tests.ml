@@ -165,13 +165,13 @@ let%test_unit "sigprocmask" =
       let prog = Program_lookup.find_prog "sleep" in
       let pid = Spawn.spawn ?sigprocmask ~prog ~argv:[ "sleep"; "60" ] () in
       Unix.kill pid Sys.sigusr1;
-      Unix.kill pid Sys.sigkill;
+      Unix.kill pid Sys.sigusr2;
       match Unix.waitpid [] pid with
       | _, WSIGNALED signal -> assert (signal = expected_signal)
       | _ -> failwith "unexpected"
     in
     run Sys.sigusr1;
-    run ~sigprocmask:(SIG_BLOCK, [ Sys.sigusr1 ]) Sys.sigkill)
+    run ~sigprocmask:(SIG_BLOCK, [ Sys.sigusr1 ]) Sys.sigusr2)
 ;;
 
 (* This should be at the end to clean up the test environment *)
