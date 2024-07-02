@@ -171,7 +171,21 @@ let%test_unit "sigprocmask" =
       | _ -> failwith "unexpected"
     in
     run Sys.sigusr1;
-    run ~sigprocmask:(SIG_BLOCK, [ Sys.sigusr1 ]) Sys.sigkill)
+    run ~sigprocmask:(SIG_BLOCK, [ Sys.sigusr1 ]) Sys.sigkill;
+    let old_signals = Unix.sigprocmask SIG_BLOCK [Sys.sigusr1] in
+    (* The blocking of [sigusr1] is only propagated to the child process if the
+       sigprocmask is [SIG_BLOCK] or [SIG_UNBLOCK].
+    *)
+    run Sys.sigusr1;
+    run ~sigprocmask:(SIG_BLOCK, []) Sys.sigkill;
+    run ~sigprocmask:(SIG_UNBLOCK, []) Sys.sigkill;
+    (* Unblocking sigusr1 in the child process. *)
+    run ~sigprocmask:(SIG_UNBLOCK, [Sys.sigusr1]) Sys.sigusr1;
+    run ~sigprocmask:(SIG_SETMASK, []) Sys.sigusr1;
+    (* Restore the old signal mask before finishing the test. *)
+    let (_ : int list) = Unix.sigprocmask SIG_SETMASK old_signals in
+    ()
+  )
 ;;
 
 (* This should be at the end to clean up the test environment *)

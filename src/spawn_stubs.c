@@ -399,6 +399,7 @@ CAMLprim value spawn_unix(value v_env,
                           value v_sigprocmask)
 {
   CAMLparam4(v_env, v_cwd, v_prog, v_argv);
+  CAMLlocal2(v_sigprocmask_command, v_sigprocmask_signals);
   pid_t ret;
   struct spawn_info info;
   int result_pipe[2];
@@ -446,6 +447,30 @@ CAMLprim value spawn_unix(value v_env,
     Is_block(v_setpgid) ?
     Long_val(Field(v_setpgid, 0)) : 0;
 
+  enum caml_unix_sigprocmask_command sigprocmask_command;
+  int* sigprocmask_signals; /* array */
+  mlsize_t sigprocmask_signals_length;
+
+  if (!Is_block(v_sigprocmask)) {
+    sigprocmask_command = CAML_SIG_SETMASK;
+    sigprocmask_signals = NULL;
+    sigprocmask_signals_length = 0;
+  } else {
+    v_sigprocmask = Field(v_sigprocmask, 0);
+
+    v_sigprocmask_command = Field(v_sigprocmask, 0);
+    v_sigprocmask_signals = Field(v_sigprocmask, 1);
+
+    sigprocmask_command = Long_val(v_sigprocmask_command);
+    sigprocmask_signals_length = Wosize_val(v_sigprocmask_signals);
+    sigprocmask_signals = (int*)malloc(sizeof(int) * sigprocmask_signals_length);
+
+    for (mlsize_t i = 0; i < sigprocmask_signals_length; i++) {
+      sigprocmask_signals[i] =
+        caml_convert_signal_number(Long_val(Field(v_sigprocmask_signals, i)));
+    }
+  }
+
   caml_enter_blocking_section();
   enter_safe_pipe_section();
 
@@ -455,6 +480,9 @@ CAMLprim value spawn_unix(value v_env,
     leave_safe_pipe_section();
     caml_leave_blocking_section();
     free_spawn_info(&info);
+    if (sigprocmask_signals != NULL) {
+      free(sigprocmask_signals);
+    }
     unix_error(error, "pipe", Nothing);
   }
 
@@ -478,44 +506,34 @@ CAMLprim value spawn_unix(value v_env,
   sigfillset(&sigset);
   pthread_sigmask(SIG_SETMASK, &sigset, &saved_procmask);
 
-  if (v_sigprocmask == Val_long(0)) {
-    sigemptyset(&info.child_sigmask);
-  } else {
-    v_sigprocmask = Field(v_sigprocmask, 0);
-    value v_sigprocmask_command = Field(v_sigprocmask, 0);
-    enum caml_unix_sigprocmask_command sigprocmask_command = Long_val(v_sigprocmask_command);
+  switch (sigprocmask_command) {
+    case CAML_SIG_SETMASK:
+      sigemptyset(&info.child_sigmask);
+      break;
 
+    case CAML_SIG_BLOCK:
+    case CAML_SIG_UNBLOCK:
+      info.child_sigmask = saved_procmask;
+      break;
+
+    default:
+      caml_failwith("Unknown sigprocmask action");
+  }
+
+  for (mlsize_t i = 0; i < sigprocmask_signals_length; i++) {
+    int signal = sigprocmask_signals[i];
     switch (sigprocmask_command) {
       case CAML_SIG_SETMASK:
-        sigemptyset(&info.child_sigmask);
+      case CAML_SIG_BLOCK:
+        sigaddset(&info.child_sigmask, signal);
         break;
 
-      case CAML_SIG_BLOCK:
       case CAML_SIG_UNBLOCK:
-        info.child_sigmask = saved_procmask;
+        sigdelset(&info.child_sigmask, signal);
         break;
 
       default:
-        caml_failwith("Unknown sigprocmask action");
-    }
-
-    value v_signals_list = Field(v_sigprocmask, 1);
-    for (; v_signals_list != Val_emptylist;
-         v_signals_list = Field(v_signals_list, 1)) {
-      int signal = caml_convert_signal_number(Long_val(Field(v_signals_list, 0)));
-      switch (sigprocmask_command) {
-        case CAML_SIG_SETMASK:
-        case CAML_SIG_BLOCK:
-          sigaddset(&info.child_sigmask, signal);
-          break;
-
-        case CAML_SIG_UNBLOCK:
-          sigdelset(&info.child_sigmask, signal);
-          break;
-
-        default:
-          assert(0);
-      }
+        assert(0);
     }
   }
 
@@ -529,6 +547,9 @@ CAMLprim value spawn_unix(value v_env,
 
   leave_safe_pipe_section();
   free_spawn_info(&info);
+  if (sigprocmask_signals != NULL) {
+    free(sigprocmask_signals);
+  }
   close(result_pipe[1]);
 
   got_error = 0;
