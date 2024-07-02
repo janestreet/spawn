@@ -98,7 +98,7 @@ external spawn_unix
   -> stderr:Unix.file_descr
   -> use_vfork:bool
   -> setpgid:int option
-  -> sigprocmask:(Unix.sigprocmask_command * int list) option
+  -> sigprocmask:(Unix.sigprocmask_command * int array) option
   -> int
   = "spawn_unix_byte" "spawn_unix"
 
@@ -178,6 +178,11 @@ let spawn
     match unix_backend with
     | Vfork -> true
     | Fork -> false
+  in
+  let sigprocmask =
+    match sigprocmask with
+    | Some (mask, signals) -> Some (mask, Array.of_list signals)
+    | None -> None
   in
   backend ~env ~cwd ~prog ~argv ~stdin ~stdout ~stderr ~use_vfork ~setpgid ~sigprocmask
 ;;
