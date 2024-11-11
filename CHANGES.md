@@ -1,4 +1,4 @@
-# Unreleased
+# v0.17.0
 
 - Support older GCC like 4.8.5 (#59)
 

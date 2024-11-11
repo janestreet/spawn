@@ -1,5 +1,6 @@
 (lang dune 2.8)
 (name spawn)
+(version "v0.17.0")
 
 (generate_opam_files true)
 
